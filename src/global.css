@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 
 :root {
-    @apply bg-stone-900;
+    background: #121212;
     @apply text-stone-50;
+    user-select: none;
+}
+
+html,
+body {
+    overscroll-behavior-y: contain;
 }

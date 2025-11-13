@@ -1,16 +1,17 @@
 import { Outlet } from 'react-router';
-import { Drawer } from 'vaul';
 import Footer from '@/components/footer';
 import PlayDrawer from '@/components/play-drawer';
+import PlayListDrawer from '@/components/play-list-drawer';
 
 export default function App() {
     return (
-        <Drawer.Root>
+        <>
             <div className="pb-32">
                 <Outlet />
             </div>
             <Footer />
             <PlayDrawer />
-        </Drawer.Root>
+            <PlayListDrawer />
+        </>
     );
 }

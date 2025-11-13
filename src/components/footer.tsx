@@ -1,9 +1,9 @@
 import { NavLink, useLocation } from 'react-router';
-import { Drawer } from 'vaul';
 import SmoothToggle from '@/components/smooth-toggle';
 import PlayButton from '@/components/play-button';
 import { cn } from '@/utils';
 import { useCurPlay } from '@/stores/cur-play';
+import { useSetPlayListOpen, useSetPlayDrawerOpen } from '@/stores/drawer';
 
 import IconAlbum from '@/icons/album.svg?react';
 import IconAlbumSolid from '@/icons/album-solid.svg?react';
@@ -38,39 +38,48 @@ export default function Footer() {
     const location = useLocation();
 
     const curPlay = useCurPlay();
+    const setPlayListOpen = useSetPlayListOpen();
+    const setPlayDrawerOpen = useSetPlayDrawerOpen();
+
+    const handleClickPlay = (e: React.MouseEvent) => {
+        e.stopPropagation();
+    };
+
+    const handleClickOpenPlayList = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setPlayListOpen(true);
+    };
 
     return (
         <div className="fixed bottom-0 left-0 right-0 bg-[#121212]">
             {/* current play */}
             {curPlay && (
-                <Drawer.Trigger asChild>
-                    <div>
-                        <div className="flex items-center p-2">
-                            <img
-                                className="size-10 mr-2 rounded"
-                                src={curPlay.album.cover}
-                            />
-                            <div>
-                                <div className="text-sm">{curPlay.song.name}</div>
-                                <div className="text-stone-200 text-xs">{curPlay.album.name}</div>
-                            </div>
-                            <div className="flex items-center gap-4 pr-2 ml-auto">
-                                <PlayButton
-                                    isPlaying={curPlay.isPlaying}
-                                    onClick={() => {}}
-                                    iconClassName="size-7"
-                                />
-                                <button>
-                                    <IconPlayList className="size-7" />
-                                </button>
-                            </div>
+                <div onClick={() => setPlayDrawerOpen(true)}>
+                    <div className="flex items-center p-2">
+                        <img
+                            className="size-10 mr-2 rounded"
+                            src={curPlay.album.cover}
+                        />
+                        <div>
+                            <div className="text-sm">{curPlay.song.name}</div>
+                            <div className="text-stone-200 text-xs">{curPlay.album.name}</div>
                         </div>
-
-                        <div className="h-0.5 bg-stone-700">
-                            <div className="bg-stone-50 w-1/3 h-full" />
+                        <div className="flex items-center gap-4 pr-2 ml-auto">
+                            <PlayButton
+                                isPlaying={curPlay.isPlaying}
+                                onClick={handleClickPlay}
+                                iconClassName="size-7"
+                            />
+                            <button onClick={handleClickOpenPlayList}>
+                                <IconPlayList className="size-7" />
+                            </button>
                         </div>
                     </div>
-                </Drawer.Trigger>
+
+                    <div className="h-0.5 bg-stone-700">
+                        <div className="bg-stone-50 w-1/3 h-full" />
+                    </div>
+                </div>
             )}
 
             {/* nav bar */}

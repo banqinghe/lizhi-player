@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from 'react-router';
+import { Drawer } from 'vaul';
 import SmoothToggle from '@/components/smooth-toggle';
 import PlayButton from '@/components/play-button';
 import { cn } from '@/utils';
@@ -14,20 +15,20 @@ import IconUserSolid from '@/icons/user-solid.svg?react';
 
 const navList = [
     {
-        iconInActive: <IconAlbum className="w-7 h-7 mb-1" />,
-        iconActive: <IconAlbumSolid className="w-7 h-7 mb-1" />,
+        iconInActive: <IconAlbum className="size-7 mb-1" />,
+        iconActive: <IconAlbumSolid className="size-7 mb-1" />,
         label: '专辑',
         to: '/',
     },
     {
-        iconInActive: <IconLibrary className="w-7 h-7 mb-1" />,
-        iconActive: <IconLibrarySolid className="w-7 h-7 mb-1" />,
+        iconInActive: <IconLibrary className="size-7 mb-1" />,
+        iconActive: <IconLibrarySolid className="size-7 mb-1" />,
         label: '歌曲库',
         to: '/library',
     },
     {
-        iconInActive: <IconUser className="w-7 h-7 mb-1" />,
-        iconActive: <IconUserSolid className="w-7 h-7 mb-1" />,
+        iconInActive: <IconUser className="size-7 mb-1" />,
+        iconActive: <IconUserSolid className="size-7 mb-1" />,
         label: '我的',
         to: '/user',
     },
@@ -42,32 +43,34 @@ export default function Footer() {
         <div className="fixed bottom-0 left-0 right-0 bg-[#121212]">
             {/* current play */}
             {curPlay && (
-                <div className="">
-                    <div className="flex items-center p-2">
-                        <img
-                            className="w-10 h-10 mr-2 rounded"
-                            src={curPlay.album.cover}
-                        />
-                        <div>
-                            <div className="text-sm">{curPlay.song.name}</div>
-                            <div className="text-stone-200 text-xs">{curPlay.album.name}</div>
-                        </div>
-                        <div className="flex items-center gap-4 pr-2 ml-auto">
-                            <PlayButton
-                                isPlaying={curPlay.isPlaying}
-                                onClick={() => {}}
-                                iconClassName="w-7 h-7"
+                <Drawer.Trigger asChild>
+                    <div>
+                        <div className="flex items-center p-2">
+                            <img
+                                className="size-10 mr-2 rounded"
+                                src={curPlay.album.cover}
                             />
-                            <button>
-                                <IconPlayList className="w-7 h-7" />
-                            </button>
+                            <div>
+                                <div className="text-sm">{curPlay.song.name}</div>
+                                <div className="text-stone-200 text-xs">{curPlay.album.name}</div>
+                            </div>
+                            <div className="flex items-center gap-4 pr-2 ml-auto">
+                                <PlayButton
+                                    isPlaying={curPlay.isPlaying}
+                                    onClick={() => {}}
+                                    iconClassName="size-7"
+                                />
+                                <button>
+                                    <IconPlayList className="size-7" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="h-0.5 bg-stone-700">
+                            <div className="bg-stone-50 w-1/3 h-full" />
                         </div>
                     </div>
-
-                    <div className="h-0.5 bg-stone-700">
-                        <div className="bg-stone-50 w-1/3 h-full" />
-                    </div>
-                </div>
+                </Drawer.Trigger>
             )}
 
             {/* nav bar */}

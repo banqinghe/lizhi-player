@@ -25,3 +25,5 @@ export interface Album {
 export interface Source {
     albums: Album[];
 }
+
+export type PlayMode = 'repeat' | 'repeat-one' | 'shuffle';

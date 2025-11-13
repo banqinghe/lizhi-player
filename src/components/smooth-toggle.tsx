@@ -17,8 +17,8 @@ export default function SmoothToggle(props: SmoothToggleProps) {
                         <motion.div
                             key="active"
                             animate={{ opacity: 1, filter: 'blur(0px)' }}
-                            exit={{ opacity: 0, filter: 'blur(2px)' }}
-                            transition={{ duration: 0.2 }}
+                            exit={{ opacity: 0, filter: 'blur(3px)' }}
+                            transition={{ duration: 0.05 }}
                         >
                             {active}
                         </motion.div>
@@ -27,8 +27,8 @@ export default function SmoothToggle(props: SmoothToggleProps) {
                         <motion.div
                             key="inactive"
                             animate={{ opacity: 1, filter: 'blur(0px)' }}
-                            exit={{ opacity: 0, filter: 'blur(2px)' }}
-                            transition={{ duration: 0.2 }}
+                            exit={{ opacity: 0, filter: 'blur(3px)' }}
+                            transition={{ duration: 0.05 }}
                         >
                             {inActive}
                         </motion.div>

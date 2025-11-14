@@ -4,7 +4,7 @@ import { usePlayDrawerOpen, useSetPlayDrawerOpen } from '@/stores/drawer';
 import { useSetPlayListOpen } from '@/stores/drawer';
 import { motion } from 'motion/react';
 import { useCurPlay, useSetCurPlay } from '@/stores/cur-play';
-import FavoriteButton from '@/components/favorite-button';
+import LikeButton from '@/components/like-button';
 import PlaySlider from '@/components/play-slider';
 import PlayModeSwitch from '@/components/play-mode-switch';
 import SmoothToggle from '@/components/smooth-toggle';
@@ -57,7 +57,7 @@ export default function PlayDrawer() {
                                     <Drawer.Title className="text-lg mb-1">{curPlay?.song.name}</Drawer.Title>
                                     <Drawer.Description className="text-sm text-stone-400">{curPlay?.album.name}</Drawer.Description>
                                 </div>
-                                <FavoriteButton isFavorite onClick={() => {}} />
+                                <LikeButton songId={curPlay?.song.songId ?? 0} />
                             </div>
 
                             <PlaySlider className="mb-8" />

@@ -15,17 +15,21 @@ export default function PlayListDrawer() {
     const setOpen = useSetPlayListOpen();
 
     // Only render the drawer root when open to avoid interfering with other Drawer roots.
-    // We still keep the exact same styles and structure inside the content.
     if (!open) return null;
 
     return (
-        <Drawer.Root open={open} onOpenChange={setOpen}>
+        <Drawer.Root
+            autoFocus
+            open={open}
+            onOpenChange={setOpen}
+        >
             <Drawer.Portal>
                 <Drawer.Overlay
                     className="fixed inset-0 z-100"
                     onClick={() => setOpen(false)}
                 />
                 <Drawer.Content
+                    aria-describedby={undefined}
                     className="fixed top-1/4 bottom-0 left-0 right-0 outline-none z-100 rounded-2xl shadow overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-[#121212] pointer-events-none -z-10" />

@@ -1725,4 +1725,11 @@ const source: Source = {
     ],
 };
 
+// 随机挑 30 个 song，输出为一个数组
+// const list = source.albums.reduce((acc, album) => {
+//     return acc.concat(album.songs);
+// }, [] as typeof source.albums[0]['songs']).sort(() => 0.5 - Math.random()).slice(0, 30);
+
+// console.log(list);
+
 export default source;

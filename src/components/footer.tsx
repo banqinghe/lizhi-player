@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import { NavLink, useLocation } from 'react-router';
 import SmoothToggle from '@/components/smooth-toggle';
 import PlayButton from '@/components/play-button';
@@ -34,6 +35,12 @@ const navList = [
     },
 ];
 
+const hideNavBarPaths = [
+    /\/album\/.+/, // 专辑页
+    /\/like/, // 我的喜欢
+    /\/random/, // 今日随机
+];
+
 export default function Footer() {
     const location = useLocation();
 
@@ -50,8 +57,15 @@ export default function Footer() {
         setPlayListOpen(true);
     };
 
+    // 判断当前路径是否匹配隐藏导航栏的路径
+    const isHideNavBar = hideNavBarPaths.some(re => re.test(location.pathname));
+
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-[#121212]">
+        <motion.div
+            className="fixed left-0 right-0 bg-[#121212] bottom-0"
+            animate={{ y: isHideNavBar ? 68 : 0 }}
+            transition={{ duration: 0.18, type: 'spring', stiffness: 300, damping: 30 }}
+        >
             {/* current play */}
             {curPlay && (
                 <div onClick={() => setPlayDrawerOpen(true)}>
@@ -83,13 +97,13 @@ export default function Footer() {
             )}
 
             {/* nav bar */}
-            <div className="flex justify-between">
+            <div className="flex justify-between h-[68px]">
                 {navList.map(nav => (
                     <NavLink
                         key={nav.to}
                         to={nav.to}
                         className={({ isActive }) => cn(
-                            'flex-1 py-2.5 relative flex flex-col items-center active:scale-97',
+                            'flex-1 relative flex flex-col justify-center items-center active:scale-97',
                             { 'text-stone-200': !isActive },
                         )}
                     >
@@ -102,6 +116,6 @@ export default function Footer() {
                     </NavLink>
                 ))}
             </div>
-        </div>
+        </motion.div>
     );
 }

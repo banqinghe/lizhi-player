@@ -5,11 +5,14 @@ import { components, hooks, utils } from '@generouted/react-router/client'
 
 export type Path =
   | `/`
+  | `/album/:albumId`
   | `/library`
+  | `/like`
+  | `/random`
   | `/user`
 
 export type Params = {
-  
+  '/album/:albumId': { albumId: string }
 }
 
 export type ModalPath = never

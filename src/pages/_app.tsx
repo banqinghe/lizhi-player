@@ -6,9 +6,7 @@ import PlayListDrawer from '@/components/play-list-drawer';
 export default function App() {
     return (
         <>
-            <div className="pb-32">
-                <Outlet />
-            </div>
+            <Outlet />
             <Footer />
             <PlayDrawer />
             <PlayListDrawer />

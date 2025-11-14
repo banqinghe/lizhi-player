@@ -1,28 +1,39 @@
+import { Link } from 'react-router';
 import PlayButton from '@/components/play-button';
 import diceUrl from '@/images/dice.webp';
-import loveSongUrl from '@/images/love-song.webp';
+import likeUrl from '@/images/like.jpeg';
 import source from '@/source';
 
 const albums = source.albums;
 
 export default function Albums() {
     return (
-        <div className="relative px-4 pt-6">
+        <div className="relative px-4 pt-6 pb-42">
             <div className="grid grid-cols-2 gap-4 mb-6">
-                <div
+                <Link
+                    to="/like"
                     className="relative h-24 p-2 rounded-lg overflow-hidden font-bold"
-                    style={{ background: `url(${loveSongUrl}) center / cover` }}
+                    style={{ background: `url(${likeUrl}) center / cover` }}
                 >
                     <span>我的喜欢</span>
-                    <PlayButton className="absolute right-1 bottom-1" isPlaying={false} onClick={() => {}} />
-                </div>
-                <div
+                    <PlayButton
+                        className="absolute right-1 bottom-1"
+                        isPlaying={false}
+                        onClick={() => {}}
+                    />
+                </Link>
+                <Link
+                    to="/random"
                     className="relative h-24 p-2 rounded-lg overflow-hidden font-bold"
                     style={{ background: `url(${diceUrl}) center / cover` }}
                 >
-                    <span>随机播放</span>
-                    <PlayButton className="absolute right-1 bottom-1" isPlaying={false} onClick={() => {}} />
-                </div>
+                    <span>今日随机</span>
+                    <PlayButton
+                        className="absolute right-1 bottom-1"
+                        isPlaying={false}
+                        onClick={() => {}}
+                    />
+                </Link>
             </div>
 
             <div>
@@ -30,16 +41,19 @@ export default function Albums() {
                 <div className="grid grid-cols-3 gap-x-4 gap-y-6">
                     {albums.map(album => (
                         <div key={album.albumId}>
-                            <div
-                                className="relative w-full aspect-square mb-2 rounded-lg"
+                            <Link
+                                to={`/album/${album.albumId}`}
+                                className="relative block w-full aspect-square mb-2 rounded-lg"
                                 style={{ background: `url(${album.cover}) center / cover` }}
                             >
                                 <PlayButton
                                     className="absolute right-1 bottom-1"
                                     isPlaying={false}
-                                    onClick={() => {}}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                    }}
                                 />
-                            </div>
+                            </Link>
                             <div className="text-xs">
                                 {album.name}
                                 <span className="text-stone-200">

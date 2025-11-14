@@ -1,3 +1,7 @@
+/**
+ * @file 控制播放页和播放列表抽屉开闭状态
+ */
+
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 
 const playListOpenAtom = atom<boolean>(false);

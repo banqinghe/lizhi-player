@@ -9,7 +9,6 @@ export type Path =
   | `/library`
   | `/like`
   | `/random`
-  | `/user`
 
 export type Params = {
   '/album/:albumId': { albumId: string }

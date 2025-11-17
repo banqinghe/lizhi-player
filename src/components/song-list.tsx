@@ -39,7 +39,7 @@ export default function SongList(props: SongListProps) {
                     {song.songId === curPlay?.song.songId && (
                         <IconPlaying className="size-3 ml-2" />
                     )}
-                    <div className="flex gap-2 ml-auto" onClick={e => e.stopPropagation()}>
+                    <div className="flex gap-2 ml-auto pl-2" onClick={e => e.stopPropagation()}>
                         <LikeButton songId={song.songId} />
                         <motion.button
                             whileTap={{ scale: 0.97 }}

@@ -44,13 +44,13 @@ export default function PlayListDrawer() {
                                     onClick={() => play(song.songId)}
                                 >
                                     <img className="size-10 mr-4" src={getAlbumById(song.albumId).cover} alt={song.name} />
-                                    {song.name}
+                                    <span className="truncate">{song.name}</span>
                                     <span className="text-sm ml-1 text-stone-400 truncate">
                                         {'· '}
                                         {getAlbumById(song.albumId).name}
                                     </span>
                                     {song.songId === curPlay.song.songId && (
-                                        <IconPlaying className="size-3 ml-2" />
+                                        <IconPlaying className="size-3 mx-2" />
                                     )}
                                     <button className="ml-auto">
                                         <IconClose className="size-5 text-stone-400" />

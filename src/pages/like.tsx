@@ -1,43 +1,40 @@
-import { motion } from 'motion/react';
 import { useLikeList } from '@/stores/like-list';
-import { getAlbumById } from '@/utils';
-import LikeButton from '@/components/like-button';
 import BackBar from '@/components/back-bar';
+import PlayListButton from '@/components/play-list-button';
+import SongList from '@/components/song-list';
 
-import IconListPlus from '@/icons/list-plus.svg?react';
+import likeUrl from '@/images/like.jpeg';
 
 export default function LikePage() {
     const likeList = useLikeList();
 
     return (
         <div className="pb-16">
-            <BackBar title="我的喜欢" />
-            {likeList.length === 0
-                ? (
-                        <div className="text-center text-stone-400 mt-56">
-                            你还没有喜欢的歌曲
-                        </div>
-                    )
-                : (
-                        <ul className="px-4">
-                            {likeList.map((song, songIndex) => (
-                                <li key={song.songId} className="flex items-center py-2">
-                                    <span className="text-stone-400 mr-2.5 text-xs">{songIndex + 1}</span>
-                                    <span className="truncate">{song.name}</span>
-                                    <span className="shrink text-sm ml-1 text-stone-400 truncate">
-                                        {'· '}
-                                        {getAlbumById(song.albumId).name}
-                                    </span>
-                                    <div className="flex gap-2 ml-auto">
-                                        <LikeButton songId={song.songId} />
-                                        <motion.button whileTap={{ scale: 0.97 }} className="">
-                                            <IconListPlus className="size-7" />
-                                        </motion.button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+            <BackBar title="返回" />
+            <div className="relative pt-10 py-8 mx-4 rounded-lg mb-4" style={{ background: `no-repeat url(${likeUrl}) center / 100%` }}>
+                <h1 className="text-3xl text-center font-bold">我的喜欢</h1>
+                {likeList.length > 0 && (
+                    <div className="flex justify-center mt-4">
+                        <PlayListButton
+                            className="mr-2 flex items-center before:content-[''] before:absolute before:inset-0"
+                            iconClassName="size-7"
+                            list={likeList}
+                            content={<span>播放全部</span>}
+                        />
+                    </div>
+                )}
+            </div>
+            <div>
+                {likeList.length === 0
+                    ? (
+                            <div className="text-center text-stone-400 mt-56">
+                                你还没有喜欢的歌曲
+                            </div>
+                        )
+                    : (
+                            <SongList showAlbumName className="px-4" list={likeList} />
+                        )}
+            </div>
         </div>
     );
 }

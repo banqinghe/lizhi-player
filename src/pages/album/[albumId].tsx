@@ -1,18 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { motion } from 'motion/react';
 import { getAlbumById } from '@/utils';
-import LikeButton from '@/components/like-button';
-import { useAddToNextPlay } from '@/stores/cur-play';
 import BackBar from '@/components/back-bar';
-
-import IconPlay from '@/icons/play.svg?react';
-import IconListPlus from '@/icons/list-plus.svg?react';
+import PlayListButton from '@/components/play-list-button';
+import SongList from '@/components/song-list';
 
 export default function AlbumPage() {
     const { albumId: albumIdStr } = useParams<{ albumId: string }>();
     const navigate = useNavigate();
-    const addToNext = useAddToNextPlay();
 
     const albumId = Number(albumIdStr);
     const album = getAlbumById(albumId);
@@ -34,7 +29,7 @@ export default function AlbumPage() {
             <div className="fixed inset-0 -z-10" style={{ background: `no-repeat url(${album.cover}) top center / auto 100% #121212` }} />
             <div
                 className="min-h-screen pb-18 backdrop-blur-2xl"
-                style={{ background: 'linear-gradient(#121212a0 0%, #121212 90%)' }}
+                style={{ background: 'linear-gradient(#12121250 0%, #121212 90%)' }}
             >
                 <BackBar title="专辑" />
                 <div>
@@ -54,34 +49,16 @@ export default function AlbumPage() {
                                 {album.songs.length}
                                 首
                             </div>
-                            <motion.button
-                                whileTap={{ scale: 0.97 }}
+                            <PlayListButton
                                 className="flex items-center mt-auto pl-2 pr-4 py-1 w-fit bg-stone-50/10 text-stone-300 rounded-full"
-                            >
-                                <IconPlay className="size-8" />
-                                <span>播放全部</span>
-                            </motion.button>
+                                iconClassName="size-8"
+                                list={album.songs}
+                                content={<span>播放全部</span>}
+                            />
                         </div>
                     </div>
                 </div>
-                <ul className="px-4">
-                    {album.songs.map((song, songIndex) => (
-                        <li key={song.songId} className="flex items-center py-2">
-                            <span className="text-stone-400 mr-2.5 text-xs">{songIndex + 1}</span>
-                            <span className="shrink truncate">{song.name}</span>
-                            <div className="flex gap-2 ml-auto">
-                                <LikeButton songId={song.songId} />
-                                <motion.button
-                                    whileTap={{ scale: 0.97 }}
-                                    className=""
-                                    onClick={() => addToNext(song.songId)}
-                                >
-                                    <IconListPlus className="size-7" />
-                                </motion.button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                <SongList list={album.songs} className="px-4" />
             </div>
         </div>
     );

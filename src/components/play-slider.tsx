@@ -1,4 +1,6 @@
 import { Slider } from '@base-ui-components/react/slider';
+import { useCurPlay, useSeekTo } from '@/stores/cur-play';
+import { formatSeconds } from '@/utils';
 
 interface PlaySliderProps {
     className?: string;
@@ -7,8 +9,18 @@ interface PlaySliderProps {
 export default function PlaySlider(props: PlaySliderProps) {
     const { className } = props;
 
+    const curPlay = useCurPlay();
+    const seekTo = useSeekTo();
+
     return (
-        <Slider.Root className={className} defaultValue={25}>
+        <Slider.Root
+            className={className}
+            value={curPlay?.currentTime || 0}
+            min={0}
+            max={curPlay?.duration || 1}
+            onValueChange={seekTo}
+            disabled={!curPlay?.duration}
+        >
             <Slider.Control className="flex w-full touch-none items-center py-2 select-none">
                 <Slider.Track className="h-1 w-full rounded bg-stone-500 select-none">
                     <Slider.Indicator className="rounded bg-stone-50 select-none" />
@@ -16,8 +28,8 @@ export default function PlaySlider(props: PlaySliderProps) {
                 </Slider.Track>
             </Slider.Control>
             <div className="flex justify-between text-[10px] text-stone-400">
-                <span>0:05</span>
-                <span>0:15</span>
+                <span>{formatSeconds(curPlay?.currentTime || 0)}</span>
+                <span>{formatSeconds(curPlay?.duration || 0)}</span>
             </div>
         </Slider.Root>
     );

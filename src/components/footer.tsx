@@ -1,11 +1,12 @@
+import { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { NavLink, useLocation } from 'react-router';
 import { Drawer } from 'vaul';
 import SmoothToggle from '@/components/smooth-toggle';
-import PlayButton from '@/components/play-button';
 import PlayDrawer from '@/components/play-drawer';
-import { cn } from '@/utils';
-import { useCurPlay } from '@/stores/cur-play';
+import PlayListDrawer from '@/components/play-list-drawer';
+import { cn, getAlbumById } from '@/utils';
+import { useCurPlay, useTogglePlay } from '@/stores/cur-play';
 
 import IconAlbum from '@/icons/album.svg?react';
 import IconAlbumSolid from '@/icons/album-solid.svg?react';
@@ -14,7 +15,8 @@ import IconLibrarySolid from '@/icons/library-solid.svg?react';
 import IconPlayList from '@/icons/playlist.svg?react';
 import IconUser from '@/icons/user.svg?react';
 import IconUserSolid from '@/icons/user-solid.svg?react';
-import PlayListDrawer from './play-list-drawer';
+import IconPlay from '@/icons/play.svg?react';
+import IconPause from '@/icons/pause.svg?react';
 
 const navList = [
     {
@@ -47,10 +49,9 @@ export default function Footer() {
     const location = useLocation();
 
     const curPlay = useCurPlay();
+    const album = useMemo(() => getAlbumById(curPlay?.song.albumId ?? 0), [curPlay?.song.albumId]);
 
-    const handleClickPlay = (e: React.MouseEvent) => {
-        e.stopPropagation();
-    };
+    const togglePlay = useTogglePlay();
 
     // 判断当前路径是否匹配隐藏导航栏的路径
     const isHideNavBar = hideNavBarPaths.some(re => re.test(location.pathname));
@@ -63,30 +64,38 @@ export default function Footer() {
         >
             {/* current play */}
             {curPlay && (
-                <Drawer.Root>
+                <Drawer.Root autoFocus>
                     <Drawer.Trigger asChild>
                         <div>
                             <div className="flex items-center p-2">
                                 <img
                                     className="size-10 mr-2 rounded"
-                                    src={curPlay.album.cover}
+                                    src={album.cover}
                                 />
                                 <div>
                                     <div className="text-sm">{curPlay.song.name}</div>
-                                    <div className="text-stone-200 text-xs">{curPlay.album.name}</div>
+                                    <div className="text-stone-200 text-xs">{album.name}</div>
                                 </div>
-                                <div className="flex items-center gap-4 pr-2 ml-auto">
-                                    <PlayButton
-                                        isPlaying={curPlay.isPlaying}
-                                        onClick={handleClickPlay}
-                                        iconClassName="size-7"
-                                    />
+                                <div
+                                    className="flex items-center gap-4 pr-2 ml-auto"
+                                    // 防止冒泡至上层 Drawer.Trigger
+                                    onClick={e => e.stopPropagation()}
+                                >
+                                    <motion.button
+                                        className="relative"
+                                        whileTap={{ scale: 0.97 }}
+                                        onClick={e => e.stopPropagation()}
+                                        onTap={togglePlay}
+                                    >
+                                        <SmoothToggle
+                                            inActive={<IconPlay className="size-8" />}
+                                            active={<IconPause className="size-8" />}
+                                            isActive={Boolean(curPlay.isPlaying)}
+                                        />
+                                    </motion.button>
                                     <Drawer.Root autoFocus>
                                         <Drawer.Trigger asChild>
-                                            <motion.button
-                                                whileTap={{ scale: 0.97 }}
-                                                onClick={e => e.stopPropagation()}
-                                            >
+                                            <motion.button whileTap={{ scale: 0.97 }}>
                                                 <IconPlayList className="size-7" />
                                             </motion.button>
                                         </Drawer.Trigger>
@@ -97,7 +106,10 @@ export default function Footer() {
 
                             {/* progress */}
                             <div className="h-0.5 bg-stone-700">
-                                <div className="bg-stone-50 w-1/3 h-full" />
+                                <div
+                                    className="bg-stone-50 h-full"
+                                    style={{ width: `${curPlay.duration ? (curPlay.currentTime / curPlay.duration) * 100 : 0}%` }}
+                                />
                             </div>
                         </div>
                     </Drawer.Trigger>

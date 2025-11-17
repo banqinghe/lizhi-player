@@ -1,41 +1,29 @@
 import { useMemo } from 'react';
-import { motion } from 'motion/react';
-import { getAlbumById, getRandomSong } from '@/utils';
-import LikeButton from '@/components/like-button';
-import { useAddToNextPlay } from '@/stores/cur-play';
+import { getRandomSong } from '@/utils';
 import BackBar from '@/components/back-bar';
+import PlayListButton from '@/components/play-list-button';
+import SongList from '@/components/song-list';
 
-import IconListPlus from '@/icons/list-plus.svg?react';
+import diceUrl from '@/images/dice.webp';
 
 export default function RandomPage() {
-    const addToNext = useAddToNextPlay();
-
     const songs = useMemo(() => getRandomSong(), []);
 
     return (
         <div className="pb-16">
-            <BackBar title="今日随机" />
-            <ul className="px-4">
-                {songs.map((song, songIndex) => (
-                    <li key={song.songId} className="flex items-center py-2">
-                        <span className="text-stone-400 mr-2.5 text-xs">{songIndex + 1}</span>
-                        <span className="truncate">{song.name}</span>
-                        <span className="shrink text-sm ml-1 text-stone-400 truncate">
-                            {'· '}
-                            {getAlbumById(song.albumId).name}
-                        </span>
-                        <div className="flex gap-2 ml-auto">
-                            <LikeButton songId={song.songId} />
-                            <motion.button
-                                whileTap={{ scale: 0.97 }}
-                                onClick={() => addToNext(song.songId)}
-                            >
-                                <IconListPlus className="size-7" />
-                            </motion.button>
-                        </div>
-                    </li>
-                ))}
-            </ul>
+            <BackBar title="返回" />
+            <div className="relative pt-10 py-8 mx-4 rounded-lg mb-4" style={{ background: `no-repeat url(${diceUrl}) center / 100%` }}>
+                <h1 className="text-3xl text-center font-bold">今日随机</h1>
+                <div className="flex justify-center mt-4">
+                    <PlayListButton
+                        className="mr-2 flex items-center before:content-[''] before:absolute before:inset-0"
+                        iconClassName="size-7"
+                        list={songs}
+                        content={<span>播放全部</span>}
+                    />
+                </div>
+            </div>
+            <SongList showAlbumName className="px-4" list={songs} />
         </div>
     );
 }

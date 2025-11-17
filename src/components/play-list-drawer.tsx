@@ -1,5 +1,5 @@
 import { Drawer } from 'vaul';
-import { useCurPlay } from '@/stores/cur-play';
+import { useCurPlay, usePlay } from '@/stores/cur-play';
 import { cn, getAlbumById } from '@/utils';
 import PlayModeSwitch from '@/components/play-mode-switch';
 
@@ -8,6 +8,7 @@ import IconPlaying from '@/icons/playing.svg?react';
 
 export default function PlayListDrawer() {
     const curPlay = useCurPlay();
+    const play = usePlay();
 
     return (
         <Drawer.Portal>
@@ -40,7 +41,7 @@ export default function PlayListDrawer() {
                                 <li
                                     key={song.songId}
                                     className={cn('flex items-center px-2 py-2 whitespace-nowrap', { 'bg-stone-800 rounded-lg': song.songId === curPlay.song.songId })}
-                                    onClick={() => {}}
+                                    onClick={() => play(song.songId)}
                                 >
                                     <img className="size-10 mr-4" src={getAlbumById(song.albumId).cover} alt={song.name} />
                                     {song.name}

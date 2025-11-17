@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 const albumIdCache = new Map<number, Album>();
-export function getAlbumById(albumId: number): Album {
+export function getAlbumById(albumId: number): Readonly<Album> {
     if (albumIdCache.has(albumId)) {
         return albumIdCache.get(albumId)!;
     }
@@ -24,7 +24,7 @@ export function getAlbumById(albumId: number): Album {
 }
 
 const songIdCache = new Map<number, Song>();
-export function getSongById(songId: number): Song {
+export function getSongById(songId: number): Readonly<Song> {
     if (songIdCache.has(songId)) {
         return songIdCache.get(songId)!;
     }
@@ -86,4 +86,11 @@ export function isSamePlayList(listA: Song[], listB: Song[]): boolean {
         }
     }
     return true;
+}
+
+/** 把秒格式化为 mm:ss */
+export function formatSeconds(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }

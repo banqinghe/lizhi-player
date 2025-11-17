@@ -1,9 +1,7 @@
-import { motion } from 'motion/react';
 import source from '@/source';
-import LikeButton from '@/components/like-button';
 
-import IconListPlus from '@/icons/list-plus.svg?react';
 import IconSearch from '@/icons/search.svg?react';
+import SongList from '@/components/song-list';
 
 const albums = source.albums;
 
@@ -38,20 +36,7 @@ export default function Library() {
                                 </div>
                             </div>
                         </div>
-                        <ul>
-                            {album.songs.map((song, songIndex) => (
-                                <li key={song.songId} className="flex items-center py-2">
-                                    <span className="text-stone-400 mr-2.5 text-xs">{songIndex + 1}</span>
-                                    <span className="shrink truncate">{song.name}</span>
-                                    <div className="flex gap-2 ml-auto">
-                                        <LikeButton songId={song.songId} />
-                                        <motion.button whileTap={{ scale: 0.97 }} className="">
-                                            <IconListPlus className="size-7" />
-                                        </motion.button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                        <SongList list={album.songs} />
                     </div>
                 ))}
             </div>

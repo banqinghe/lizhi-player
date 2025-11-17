@@ -3,8 +3,8 @@
  */
 
 import { create } from 'zustand';
-import type { Album, PlayMode, Song } from '@/types';
-import { getAlbumById, getSongById, isSamePlayList } from '@/utils';
+import type { PlayMode, Song } from '@/types';
+import { getSongById, isSamePlayList } from '@/utils';
 import { useToast } from '@/components/toast';
 
 const playModeNext: Record<PlayMode, PlayMode> = {
@@ -18,7 +18,7 @@ interface CurPlay {
     list: Song[];
     isPlaying: boolean;
     currentTime: number;
-    album: Album;
+    duration: number;
     playMode: PlayMode;
 }
 
@@ -33,6 +33,7 @@ interface CurPlayStore {
     playNext: () => void;
     stopPlay: () => void;
     nextPlayMode: () => void;
+    seekTo: (time: number) => void;
 }
 
 const useCurPlayStore = create<CurPlayStore>((set, get) => ({
@@ -49,8 +50,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
                     list: [song],
                     song,
                     currentTime: 0,
+                    duration: 0,
                     isPlaying: false,
-                    album: getAlbumById(song.albumId),
                     playMode: curPlay?.playMode || 'repeat',
                 },
             });
@@ -89,8 +90,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
                     list: [song],
                     song,
                     currentTime: 0,
+                    duration: 0,
                     isPlaying: true,
-                    album: getAlbumById(song.albumId),
                     playMode: curPlay?.playMode || 'repeat',
                 },
             });
@@ -105,14 +106,7 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
         const song = getSongById(songId);
         const existingIndex = newList.findIndex(s => s.songId === songId);
 
-        if (existingIndex !== -1) {
-            // 如果 list 中已有 song, 移除原位置
-            newList.splice(existingIndex, 1);
-            // 删除后需要在 newList 中重新查找当前播放位置
-            const curPlayIndex = newList.findIndex(s => s.songId === curPlay.song.songId);
-            // 插入到当前播放位置之后
-            newList.splice(curPlayIndex + 1, 0, song);
-        } else {
+        if (existingIndex === -1) {
             // 如果 list 中没有, 插入到当前播放位置之后
             const curPlayIndex = newList.findIndex(s => s.songId === curPlay.song.songId);
             newList.splice(curPlayIndex + 1, 0, song);
@@ -143,8 +137,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
                 playMode,
                 song: list[0],
                 currentTime: 0,
+                duration: 0,
                 isPlaying: true,
-                album: getAlbumById(list[0].albumId),
             },
         });
     },
@@ -174,8 +168,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
                     ...curPlay,
                     list: newList,
                     song: nextSong,
-                    album: getAlbumById(nextSong.albumId),
                     currentTime: 0,
+                    duration: 0,
                 },
             });
             return;
@@ -197,26 +191,19 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
 
         let prevIndex: number;
 
-        switch (curPlay.playMode) {
-            case 'repeat-one':
-                // 单曲循环模式：重新播放当前歌曲
-                prevIndex = currentIndex;
-                break;
-            case 'shuffle':
-                // 随机模式：随机选择一首（排除当前）
-                if (curPlay.list.length === 1) {
-                    prevIndex = 0;
-                } else {
-                    do {
-                        prevIndex = Math.floor(Math.random() * curPlay.list.length);
-                    } while (prevIndex === currentIndex);
-                }
-                break;
-            case 'repeat':
-            default:
-                // 列表循环模式：上一首，如果是第一首则循环到最后一首
-                prevIndex = currentIndex === 0 ? curPlay.list.length - 1 : currentIndex - 1;
-                break;
+        if (curPlay.playMode === 'shuffle') {
+            // 随机模式：随机选择一首（排除当前）
+            if (curPlay.list.length === 1) {
+                prevIndex = 0;
+            } else {
+                do {
+                    prevIndex = Math.floor(Math.random() * curPlay.list.length);
+                } while (prevIndex === currentIndex);
+            }
+        } else {
+            // 列表循环模式：上一首，如果是第一首则循环到最后一首
+            // 即使是单曲循环, 用户点击跳转也应跳转
+            prevIndex = currentIndex === 0 ? curPlay.list.length - 1 : currentIndex - 1;
         }
 
         const prevSong = curPlay.list[prevIndex];
@@ -224,13 +211,13 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
             curPlay: {
                 ...curPlay,
                 song: prevSong,
-                album: getAlbumById(prevSong.albumId),
                 currentTime: 0,
+                duration: 0,
                 isPlaying: true,
             },
         });
     },
-    playNext: () => {
+    playNext: (auto: boolean = false) => {
         const curPlay = get().curPlay;
         if (!curPlay || !curPlay.list || curPlay.list.length === 0) {
             return;
@@ -243,28 +230,23 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
 
         let nextIndex: number;
 
-        console.log('play next song, mode:', curPlay.playMode);
-
-        switch (curPlay.playMode) {
-            case 'repeat-one':
-                // 单曲循环模式：重新播放当前歌曲
+        if (curPlay.playMode === 'shuffle') {
+            // 随机模式：随机选择一首（排除当前）
+            if (curPlay.list.length === 1) {
+                nextIndex = 0;
+            } else {
+                do {
+                    nextIndex = Math.floor(Math.random() * curPlay.list.length);
+                } while (nextIndex === currentIndex);
+            }
+        } else {
+            // 区分是否是自动下一首, 如果是自动下一首且是单曲循环模式, 则保持当前歌曲不变
+            if (auto && curPlay.playMode === 'repeat-one') {
                 nextIndex = currentIndex;
-                break;
-            case 'shuffle':
-                // 随机模式：随机选择一首（排除当前）
-                if (curPlay.list.length === 1) {
-                    nextIndex = 0;
-                } else {
-                    do {
-                        nextIndex = Math.floor(Math.random() * curPlay.list.length);
-                    } while (nextIndex === currentIndex);
-                }
-                break;
-            case 'repeat':
-            default:
+            } else {
                 // 列表循环模式：下一首，如果是最后一首则循环到第一首
                 nextIndex = currentIndex === curPlay.list.length - 1 ? 0 : currentIndex + 1;
-                break;
+            }
         }
 
         const nextSong = curPlay.list[nextIndex];
@@ -272,8 +254,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
             curPlay: {
                 ...curPlay,
                 song: nextSong,
-                album: getAlbumById(nextSong.albumId),
                 currentTime: 0,
+                duration: 0,
                 isPlaying: true,
             },
         });
@@ -288,6 +270,11 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
         if (!curPlay) return;
         const nextMode = playModeNext[curPlay.playMode] || 'repeat';
         set({ curPlay: { ...curPlay, playMode: nextMode } });
+    },
+    seekTo: (time) => {
+        const curPlay = get().curPlay;
+        if (!curPlay) return;
+        set({ curPlay: { ...curPlay, currentTime: time } });
     },
 }));
 
@@ -348,6 +335,11 @@ export function useTogglePlay() {
         if (!curPlay) return;
         setCurPlay({ ...curPlay, isPlaying: !curPlay.isPlaying });
     };
+}
+
+/** 当前歌曲跳转到指定时间 */
+export function useSeekTo() {
+    return useCurPlayStore(state => state.seekTo);
 }
 
 /** 切换到下一种播放模式 */

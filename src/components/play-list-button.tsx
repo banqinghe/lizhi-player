@@ -45,19 +45,21 @@ export default function PlayListButton(props: PlayButtonProps) {
                 }
             }}
         >
-            <SmoothToggle
-                isActive={Boolean(curPlay?.isPlaying) && isSameList}
-                inActive={
-                    circleStyle
-                        ? <IconPlayCircle className={cn('size-10', iconClassName)} />
-                        : <IconPlay className={cn('size-10', iconClassName)} />
-                }
-                active={
-                    circleStyle
-                        ? <IconPauseCircle className={cn('size-10', iconClassName)} />
-                        : <IconPause className={cn('size-10', iconClassName)} />
-                }
-            />
+            <div className="relative">
+                <SmoothToggle
+                    isActive={Boolean(curPlay?.isPlaying) && isSameList}
+                    inActive={
+                        circleStyle
+                            ? <IconPlayCircle className={cn('size-10', iconClassName)} />
+                            : <IconPlay className={cn('size-10', iconClassName)} />
+                    }
+                    active={
+                        circleStyle
+                            ? <IconPauseCircle className={cn('size-10', iconClassName)} />
+                            : <IconPause className={cn('size-10', iconClassName)} />
+                    }
+                />
+            </div>
             {content}
         </motion.button>
     );

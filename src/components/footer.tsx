@@ -1,10 +1,11 @@
 import { motion } from 'motion/react';
 import { NavLink, useLocation } from 'react-router';
+import { Drawer } from 'vaul';
 import SmoothToggle from '@/components/smooth-toggle';
 import PlayButton from '@/components/play-button';
+import PlayDrawer from '@/components/play-drawer';
 import { cn } from '@/utils';
 import { useCurPlay } from '@/stores/cur-play';
-import { useSetPlayListOpen, useSetPlayDrawerOpen } from '@/stores/drawer';
 
 import IconAlbum from '@/icons/album.svg?react';
 import IconAlbumSolid from '@/icons/album-solid.svg?react';
@@ -13,6 +14,7 @@ import IconLibrarySolid from '@/icons/library-solid.svg?react';
 import IconPlayList from '@/icons/playlist.svg?react';
 import IconUser from '@/icons/user.svg?react';
 import IconUserSolid from '@/icons/user-solid.svg?react';
+import PlayListDrawer from './play-list-drawer';
 
 const navList = [
     {
@@ -45,16 +47,9 @@ export default function Footer() {
     const location = useLocation();
 
     const curPlay = useCurPlay();
-    const setPlayListOpen = useSetPlayListOpen();
-    const setPlayDrawerOpen = useSetPlayDrawerOpen();
 
     const handleClickPlay = (e: React.MouseEvent) => {
         e.stopPropagation();
-    };
-
-    const handleClickOpenPlayList = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setPlayListOpen(true);
     };
 
     // 判断当前路径是否匹配隐藏导航栏的路径
@@ -68,32 +63,48 @@ export default function Footer() {
         >
             {/* current play */}
             {curPlay && (
-                <div onClick={() => setPlayDrawerOpen(true)}>
-                    <div className="flex items-center p-2">
-                        <img
-                            className="size-10 mr-2 rounded"
-                            src={curPlay.album.cover}
-                        />
+                <Drawer.Root>
+                    <Drawer.Trigger asChild>
                         <div>
-                            <div className="text-sm">{curPlay.song.name}</div>
-                            <div className="text-stone-200 text-xs">{curPlay.album.name}</div>
-                        </div>
-                        <div className="flex items-center gap-4 pr-2 ml-auto">
-                            <PlayButton
-                                isPlaying={curPlay.isPlaying}
-                                onClick={handleClickPlay}
-                                iconClassName="size-7"
-                            />
-                            <button onClick={handleClickOpenPlayList}>
-                                <IconPlayList className="size-7" />
-                            </button>
-                        </div>
-                    </div>
+                            <div className="flex items-center p-2">
+                                <img
+                                    className="size-10 mr-2 rounded"
+                                    src={curPlay.album.cover}
+                                />
+                                <div>
+                                    <div className="text-sm">{curPlay.song.name}</div>
+                                    <div className="text-stone-200 text-xs">{curPlay.album.name}</div>
+                                </div>
+                                <div className="flex items-center gap-4 pr-2 ml-auto">
+                                    <PlayButton
+                                        isPlaying={curPlay.isPlaying}
+                                        onClick={handleClickPlay}
+                                        iconClassName="size-7"
+                                    />
+                                    <Drawer.Root autoFocus>
+                                        <Drawer.Trigger asChild>
+                                            <motion.button
+                                                whileTap={{ scale: 0.97 }}
+                                                onClick={e => e.stopPropagation()}
+                                            >
+                                                <IconPlayList className="size-7" />
+                                            </motion.button>
+                                        </Drawer.Trigger>
+                                        <PlayListDrawer />
+                                    </Drawer.Root>
+                                </div>
+                            </div>
 
-                    <div className="h-0.5 bg-stone-700">
-                        <div className="bg-stone-50 w-1/3 h-full" />
-                    </div>
-                </div>
+                            {/* progress */}
+                            <div className="h-0.5 bg-stone-700">
+                                <div className="bg-stone-50 w-1/3 h-full" />
+                            </div>
+                        </div>
+                    </Drawer.Trigger>
+
+                    {/* 播放器面板 */}
+                    <PlayDrawer />
+                </Drawer.Root>
             )}
 
             {/* nav bar */}

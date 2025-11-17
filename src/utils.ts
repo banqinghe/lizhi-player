@@ -72,3 +72,18 @@ export function getRandomSong(): Song[] {
     localStorage.setItem(dailyKey, JSON.stringify(dailyData));
     return dailyData.songs;
 }
+
+/** 判断播放的列表是不是当前列表, 如果每首歌都一样那就认为是一个列表, 无论顺序 */
+export function isSamePlayList(listA: Song[], listB: Song[]): boolean {
+    if (listA.length !== listB.length) {
+        return false;
+    }
+    const setA = new Set(listA.map(song => song.songId));
+    const setB = new Set(listB.map(song => song.songId));
+    for (const id of setA) {
+        if (!setB.has(id)) {
+            return false;
+        }
+    }
+    return true;
+}

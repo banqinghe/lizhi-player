@@ -3,14 +3,16 @@ import { useNavigate, useParams } from 'react-router';
 import { motion } from 'motion/react';
 import { getAlbumById } from '@/utils';
 import LikeButton from '@/components/like-button';
+import { useAddToNextPlay } from '@/stores/cur-play';
+import BackBar from '@/components/back-bar';
 
 import IconPlay from '@/icons/play.svg?react';
-import IconLeftArrow from '@/icons/arrow-alt.svg?react';
 import IconListPlus from '@/icons/list-plus.svg?react';
 
 export default function AlbumPage() {
     const { albumId: albumIdStr } = useParams<{ albumId: string }>();
     const navigate = useNavigate();
+    const addToNext = useAddToNextPlay();
 
     const albumId = Number(albumIdStr);
     const album = getAlbumById(albumId);
@@ -27,24 +29,14 @@ export default function AlbumPage() {
         return null;
     }
 
-    console.log(album);
-
     return (
         <div>
             <div className="fixed inset-0 -z-10" style={{ background: `no-repeat url(${album.cover}) top center / auto 100% #121212` }} />
             <div
-                className="min-h-[calc(100vh-56px)] pb-18 backdrop-blur-2xl"
+                className="min-h-screen pb-18 backdrop-blur-2xl"
                 style={{ background: 'linear-gradient(#121212a0 0%, #121212 90%)' }}
             >
-                <div className="flex gap-1 items-center pt-4 pl-4 mb-4">
-                    <motion.button
-                        onTap={() => navigate(-1)}
-                        whileTap={{ scale: 0.97 }}
-                    >
-                        <IconLeftArrow className="size-6" />
-                    </motion.button>
-                    <span className="text-lg font-semibold">专辑</span>
-                </div>
+                <BackBar title="专辑" />
                 <div>
                     <div className="flex justify-center gap-6 px-6 mb-6">
                         <img className="size-36 rounded" src={album.cover} alt={album.name} />
@@ -79,7 +71,11 @@ export default function AlbumPage() {
                             <span className="shrink truncate">{song.name}</span>
                             <div className="flex gap-2 ml-auto">
                                 <LikeButton songId={song.songId} />
-                                <motion.button whileTap={{ scale: 0.97 }} className="">
+                                <motion.button
+                                    whileTap={{ scale: 0.97 }}
+                                    className=""
+                                    onClick={() => addToNext(song.songId)}
+                                >
                                     <IconListPlus className="size-7" />
                                 </motion.button>
                             </div>

@@ -2,7 +2,7 @@
  * @file 我的喜欢列表
  */
 
-import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { create } from 'zustand';
 import type { Song } from '@/types';
 import { getSongById } from '@/utils';
 
@@ -191,72 +191,87 @@ const mockData: Song[] = [
         url: 'https://testingcf.jsdelivr.net/gh/nj-lizhi/song@main/audio/8/歌声与微笑.mp3',
     },
 ];
-const likeListAtom = atom<Song[]>(mockData);
+
+interface LikeListStore {
+    likeList: Song[];
+    likeSet: ReadonlySet<number>;
+    setLikeList: (list: Song[]) => void;
+    addToLikeList: (songId: number) => void;
+    removeFromLikeList: (songId: number) => void;
+    toggleLike: (songId: number) => void;
+}
+
+const useLikeListStore = create<LikeListStore>(set => ({
+    likeList: mockData,
+    likeSet: new Set(mockData.map(song => song.songId)),
+    setLikeList: list => set({
+        likeList: list,
+        likeSet: new Set(list.map(song => song.songId)),
+    }),
+    addToLikeList: (songId) => {
+        const song = getSongById(songId);
+        if (!song) return;
+        set((state) => {
+            if (state.likeSet.has(songId)) return state;
+            const newList = [song, ...state.likeList];
+            return {
+                likeList: newList,
+                likeSet: new Set(newList.map(s => s.songId)),
+            };
+        });
+    },
+    removeFromLikeList: (songId) => {
+        set((state) => {
+            const newList = state.likeList.filter(s => s.songId !== songId);
+            if (newList.length === state.likeList.length) return state;
+            return {
+                likeList: newList,
+                likeSet: new Set(newList.map(s => s.songId)),
+            };
+        });
+    },
+    toggleLike: (songId) => {
+        set((state) => {
+            const exists = state.likeSet.has(songId);
+            if (exists) {
+                const newList = state.likeList.filter(s => s.songId !== songId);
+                return {
+                    likeList: newList,
+                    likeSet: new Set(newList.map(s => s.songId)),
+                };
+            } else {
+                const song = getSongById(songId);
+                if (!song) return state;
+                const newList = [song, ...state.likeList];
+                return {
+                    likeList: newList,
+                    likeSet: new Set(newList.map(s => s.songId)),
+                };
+            }
+        });
+    },
+}));
 
 export function useLikeList() {
-    return useAtomValue(likeListAtom);
+    return useLikeListStore(state => state.likeList);
 }
 
 export function useSetLikeList() {
-    return useSetAtom(likeListAtom);
+    return useLikeListStore(state => state.setLikeList);
 }
-
-const likeSetAtom = atom<ReadonlySet<number>>(
-    get => new Set(get(likeListAtom).map(song => song.songId)),
-);
 
 export function useLikeSet() {
-    return useAtomValue(likeSetAtom);
+    return useLikeListStore(state => state.likeSet);
 }
 
-/* 添加喜欢 */
-const addToLikeListAtom = atom(
-    null,
-    (get, set, songId: number) => {
-        const id = songId as number;
-        const list = get(likeListAtom) ?? [];
-        if (list.some(s => s.songId === id)) return;
-        const song = getSongById(id);
-        if (!song) return;
-        set(likeListAtom, [song, ...list]);
-    },
-);
-
-/* 删除喜欢 */
-const removeFromLikeListAtom = atom(
-    null,
-    (get, set, songId: number) => {
-        const id = songId;
-        const list = get(likeListAtom) ?? [];
-        const next = list.filter(s => s.songId !== id);
-        if (next.length === list.length) return;
-        set(likeListAtom, next);
-    },
-);
-
-/* 切换喜欢 */
-const toggleLikeAtom = atom(
-    null,
-    (get, set, songId: number) => {
-        const id = songId;
-        const list = get(likeListAtom) ?? [];
-        const exists = list.some(s => s.songId === id);
-        if (exists) {
-            set(removeFromLikeListAtom, id);
-        } else {
-            set(addToLikeListAtom, id);
-        }
-    },
-);
-
 export function useAddToLikeList() {
-    return useSetAtom(addToLikeListAtom);
+    return useLikeListStore(state => state.addToLikeList);
 }
 
 export function useRemoveFromLikeList() {
-    return useSetAtom(removeFromLikeListAtom);
+    return useLikeListStore(state => state.removeFromLikeList);
 }
 
 export function useToggleLike() {
-    return useSetAtom(toggleLikeAtom);
+    return useLikeListStore(state => state.toggleLike);
 }

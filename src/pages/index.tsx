@@ -1,12 +1,18 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router';
-import PlayButton from '@/components/play-button';
 import diceUrl from '@/images/dice.webp';
 import likeUrl from '@/images/like.jpeg';
 import source from '@/source';
+import PlayListButton from '@/components/play-list-button';
+import { useLikeList } from '@/stores/like-list';
+import { getRandomSong } from '@/utils';
 
 const albums = source.albums;
 
 export default function Albums() {
+    const likeList = useLikeList();
+    const dailyRandomList = useMemo(() => getRandomSong(), []);
+
     return (
         <div className="relative px-4 pt-6 pb-42">
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -16,10 +22,9 @@ export default function Albums() {
                     style={{ background: `url(${likeUrl}) center / cover` }}
                 >
                     <span>我的喜欢</span>
-                    <PlayButton
+                    <PlayListButton
                         className="absolute right-1 bottom-1"
-                        isPlaying={false}
-                        onClick={() => {}}
+                        list={likeList}
                     />
                 </Link>
                 <Link
@@ -28,10 +33,9 @@ export default function Albums() {
                     style={{ background: `url(${diceUrl}) center / cover` }}
                 >
                     <span>今日随机</span>
-                    <PlayButton
+                    <PlayListButton
                         className="absolute right-1 bottom-1"
-                        isPlaying={false}
-                        onClick={() => {}}
+                        list={dailyRandomList}
                     />
                 </Link>
             </div>
@@ -46,12 +50,9 @@ export default function Albums() {
                                 className="relative block w-full aspect-square mb-2 rounded-lg"
                                 style={{ background: `url(${album.cover}) center / cover` }}
                             >
-                                <PlayButton
+                                <PlayListButton
                                     className="absolute right-1 bottom-1"
-                                    isPlaying={false}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                    }}
+                                    list={album.songs}
                                 />
                             </Link>
                             <div className="text-xs">

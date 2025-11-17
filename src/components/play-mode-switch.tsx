@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import type { PlayMode } from '@/types';
 import { cn } from '@/utils';
+import { useCurPlay, useNextPlayMode } from '@/stores/cur-play';
 
 import IconRepeat from '@/icons/repeat.svg?react';
 import IconRepeatOne from '@/icons/repeat-one.svg?react';
@@ -11,15 +12,7 @@ interface PlayModeSwitchProps {
     iconClassName?: string;
     textClassName?: string;
     withText?: boolean;
-    playMode: 'repeat' | 'repeat-one' | 'shuffle';
-    onChange: (mode: 'repeat' | 'repeat-one' | 'shuffle') => void;
 }
-
-const playModeNext: Record<PlayMode, PlayMode> = {
-    'repeat': 'repeat-one',
-    'repeat-one': 'shuffle',
-    'shuffle': 'repeat',
-};
 
 function getPlayModeIconMap(playMode: PlayMode, iconClassName?: string) {
     return {
@@ -29,12 +22,15 @@ function getPlayModeIconMap(playMode: PlayMode, iconClassName?: string) {
     }[playMode];
 }
 export default function PlayModeSwitch(props: PlayModeSwitchProps) {
-    const { className, iconClassName, textClassName, playMode, onChange, withText } = props;
+    const { className, iconClassName, textClassName, withText } = props;
+
+    const playMode = useCurPlay()?.playMode || 'repeat';
+    const nextPlayMode = useNextPlayMode();
 
     return (
         <motion.button
             whileTap={{ scale: 0.97 }}
-            onTap={() => onChange(playModeNext[playMode])}
+            onTap={nextPlayMode}
             className={className}
         >
             <AnimatePresence mode="popLayout">

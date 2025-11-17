@@ -1,29 +1,17 @@
 import { motion } from 'motion/react';
-import { useNavigate } from 'react-router';
 import { useLikeList } from '@/stores/like-list';
 import { getAlbumById } from '@/utils';
 import LikeButton from '@/components/like-button';
+import BackBar from '@/components/back-bar';
 
-import IconLeftArrow from '@/icons/arrow-alt.svg?react';
 import IconListPlus from '@/icons/list-plus.svg?react';
 
 export default function LikePage() {
-    const navigate = useNavigate();
-
     const likeList = useLikeList();
 
     return (
         <div className="pb-16">
-            <div className="pt-4 pl-4 mb-4">
-                <motion.button
-                    className="flex gap-1 items-center "
-                    onTap={() => navigate(-1)}
-                    whileTap={{ scale: 0.97 }}
-                >
-                    <IconLeftArrow className="size-6" />
-                    <span className="text-lg font-semibold">我的喜欢</span>
-                </motion.button>
-            </div>
+            <BackBar title="我的喜欢" />
             {likeList.length === 0
                 ? (
                         <div className="text-center text-stone-400 mt-56">

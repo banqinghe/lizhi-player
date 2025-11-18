@@ -1,5 +1,6 @@
 import { getAlbumById } from '@/utils';
 import { useCurPlayStore, type CurPlay } from '@/stores/cur-play';
+import { getCachedAudioBlob, hasCachedAudio, setCachedAudioBlob } from './audio-cache';
 
 function getBufferedEnd(audio: HTMLAudioElement): number {
     const { buffered } = audio;
@@ -28,6 +29,13 @@ class HtmlAudioController {
     private pushingTimeFromAudio = false;
     private hasMediaSession = typeof navigator !== 'undefined' && 'mediaSession' in navigator;
 
+    private objectUrl: string | null = null;
+    private lastSongId: number | null = null;
+    private lastSongUrl: string | null = null;
+    private lastSourceFromCache = false;
+    private cachingSongIds = new Set<number>();
+    private loadToken = 0;
+
     constructor() {
         this.audio = new Audio();
         this.audio.preload = 'auto';
@@ -49,12 +57,13 @@ class HtmlAudioController {
     private handleStateChange(next: CurPlay | null, prev: CurPlay | null) {
         if (!next) {
             this.audio.pause();
+            this.clearObjectUrl();
             this.audio.removeAttribute('src');
             return;
         }
 
         if (!prev || next.song.songId !== prev.song.songId) {
-            this.loadSource(next);
+            void this.loadSource(next);
             return;
         }
 
@@ -74,14 +83,67 @@ class HtmlAudioController {
         }
     }
 
-    private loadSource(curPlay: CurPlay) {
-        if (this.audio.src !== curPlay.song.url) {
-            this.audio.src = curPlay.song.url;
+    private async loadSource(curPlay: CurPlay) {
+        const token = ++this.loadToken;
+        const { song } = curPlay;
+        this.lastSongId = song.songId;
+        this.lastSongUrl = song.url;
+        const cachedBlob = await getCachedAudioBlob(song.songId);
+        if (token !== this.loadToken) {
+            return;
         }
+        const isCacheHit = Boolean(cachedBlob);
+        const nextSrc = isCacheHit && cachedBlob ? URL.createObjectURL(cachedBlob) : song.url;
+        this.replaceObjectUrl(nextSrc, isCacheHit);
+        this.lastSourceFromCache = isCacheHit;
         this.audio.currentTime = curPlay.currentTime || 0;
         this.audio.load();
         if (curPlay.isPlaying) {
             this.safePlay();
+        }
+    }
+
+    private replaceObjectUrl(src: string, isBlob: boolean) {
+        if (this.objectUrl) {
+            URL.revokeObjectURL(this.objectUrl);
+            this.objectUrl = null;
+        }
+        this.audio.src = src;
+        if (isBlob) {
+            this.objectUrl = src;
+        }
+    }
+
+    private clearObjectUrl() {
+        if (this.objectUrl) {
+            URL.revokeObjectURL(this.objectUrl);
+            this.objectUrl = null;
+        }
+    }
+
+    private async cacheSongAfterPlayback(songId: number, url: string) {
+        if (this.cachingSongIds.has(songId)) {
+            return;
+        }
+        this.cachingSongIds.add(songId);
+        try {
+            const alreadyCached = await hasCachedAudio(songId);
+            if (alreadyCached) {
+                return;
+            }
+            const response = await fetch(url, { mode: 'cors', credentials: 'omit' });
+            if (!response.ok) {
+                return;
+            }
+            const blob = await response.blob();
+            if (blob.type && !blob.type.startsWith('audio/')) {
+                return;
+            }
+            await setCachedAudioBlob(songId, blob);
+        } catch (error) {
+            console.warn(error);
+        } finally {
+            this.cachingSongIds.delete(songId);
         }
     }
 
@@ -141,6 +203,9 @@ class HtmlAudioController {
     };
 
     private handleEnded = () => {
+        if (this.lastSongId != null && this.lastSongUrl && !this.lastSourceFromCache) {
+            void this.cacheSongAfterPlayback(this.lastSongId, this.lastSongUrl);
+        }
         const playNext = useCurPlayStore.getState().playNext;
         playNext(true);
     };

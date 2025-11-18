@@ -1,73 +1,35 @@
-# React + TypeScript + Vite
+# Li Zhi Player
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile-first web app focused on Li Zhi's music catalog. Built with Vite, React, Tailwind CSS, and equipped with an installable Progressive Web App (PWA) experience.
 
-Currently, two official plugins are available:
+## Getting started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm install
+pnpm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Production build
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm run build
+pnpm run preview
 ```
+
+## PWA capabilities
+
+- `vite-plugin-pwa@1.1.0` registers an auto-updating service worker so new releases activate quickly.
+- The existing site icon now ships in 192px and 512px sizes with standalone display mode and the `#121212` brand theme.
+- Runtime caching:
+  - `CacheFirst` for audio streams and artwork so music and cover art stay available offline once cached.
+  - `StaleWhileRevalidate` for JS and CSS bundles to keep static assets fresh while still responding instantly.
+- Media playback keeps working without network after an initial sync, while new builds download silently in the background.
+
+## Offline audio cache
+
+- Finished tracks are fetched once more after playback and stored as blobs inside IndexedDB (`lizhi-player-audio-cache`).
+- Playback checks IndexedDB first and reuses cached `blob:` URLs, so network is skipped when an entry already exists.
+- The cache stores the 30 most recently completed songs and evicts older records automatically to stay within quota limits.
+- Any failure (quota prompts, CORS, private browsing) falls back to streaming so playback never blocks.
+
+To test the install flow locally, run `pnpm run build && pnpm run preview`, open the preview URL in Chrome, then pick **Install Li Zhi Player** from the omnibox install menu.

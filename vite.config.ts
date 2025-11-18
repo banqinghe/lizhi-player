@@ -4,8 +4,16 @@ import generouted from '@generouted/react-router/plugin';
 import svgr from 'vite-plugin-svgr';
 import tailwindcss from '@tailwindcss/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { qrcode } from 'vite-plugin-qrcode';
 
 // https://vite.dev/config/
 export default defineConfig({
-    plugins: [react(), generouted(), tailwindcss(), svgr(), tsconfigPaths()],
+    plugins: [
+        react(),
+        generouted(),
+        tailwindcss(),
+        svgr(),
+        tsconfigPaths(),
+        qrcode(),
+    ],
 });

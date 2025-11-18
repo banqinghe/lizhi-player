@@ -12,7 +12,7 @@ export default function PlayListDrawer() {
 
     return (
         <Drawer.Portal>
-            <Drawer.Overlay className="fixed inset-0 z-100" />
+            <Drawer.Overlay className="fixed inset-0 bg-black/40" />
             <Drawer.Content
                 aria-describedby={undefined}
                 className="fixed top-1/4 bottom-0 left-0 right-0 outline-none z-100 rounded-2xl shadow overflow-hidden"

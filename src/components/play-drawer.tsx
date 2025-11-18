@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Drawer } from 'vaul';
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
@@ -9,6 +9,7 @@ import PlaySlider from '@/components/play-slider';
 import PlayModeSwitch from '@/components/play-mode-switch';
 import SmoothToggle from '@/components/smooth-toggle';
 import PlayListDrawer from '@/components/play-list-drawer';
+import { useDrawerBackStack } from '@/hooks/use-drawer-back-stack';
 
 import IconChevronDown from '@/icons/chevron-down.svg?react';
 import IconSkipPrevious from '@/icons/skip-previous.svg?react';
@@ -24,6 +25,18 @@ export default function PlayDrawer() {
     const togglePlay = useTogglePlay();
 
     const album = useMemo(() => getAlbumById(curPlay?.song.albumId ?? 0), [curPlay?.song.albumId]);
+
+    // 播放器内部嵌套的播放列表 Drawer 是否打开
+    const [isInnerListOpen, setInnerListOpen] = useState(false);
+
+    // 将内部 Drawer 接入返回栈：
+    // - 打开时 push 一层 history
+    // - back 时优先关闭这层 Drawer
+    useDrawerBackStack(isInnerListOpen, () => setInnerListOpen(false));
+
+    const handleInnerListOpenChange = (open: boolean) => {
+        setInnerListOpen(open);
+    };
 
     return (
         <Drawer.Portal>
@@ -91,8 +104,11 @@ export default function PlayDrawer() {
                             >
                                 <IconSkipNext className="size-14" />
                             </motion.button>
-
-                            <Drawer.NestedRoot autoFocus>
+                            <Drawer.NestedRoot
+                                autoFocus
+                                open={isInnerListOpen}
+                                onOpenChange={handleInnerListOpenChange}
+                            >
                                 <Drawer.Trigger asChild>
                                     <motion.button whileTap={{ scale: 0.97 }}>
                                         <IconPlayList className="size-8" />

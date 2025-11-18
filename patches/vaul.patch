@@ -1,0 +1,95 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 0dbbce5526681925a81804ced237a045a53c0355..56f2bc5672f3e35ef44a678043f42848384fb286 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -1288,45 +1288,45 @@ function Root({ open: openProp, onOpenChange, children, onDrag: onDragProp, onRe
+         isOpen
+     ]);
+     function onNestedOpenChange(o) {
+-        const scale = o ? (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth : 1;
+-        const initialTranslate = o ? -NESTED_DISPLACEMENT : 0;
+-        if (nestedOpenChangeTimer.current) {
+-            window.clearTimeout(nestedOpenChangeTimer.current);
+-        }
+-        set(drawerRef.current, {
+-            transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+-            transform: isVertical(direction) ? `scale(${scale}) translate3d(0, ${initialTranslate}px, 0)` : `scale(${scale}) translate3d(${initialTranslate}px, 0, 0)`
+-        });
+-        if (!o && drawerRef.current) {
+-            nestedOpenChangeTimer.current = setTimeout(()=>{
+-                const translateValue = getTranslate(drawerRef.current, direction);
+-                set(drawerRef.current, {
+-                    transition: 'none',
+-                    transform: isVertical(direction) ? `translate3d(0, ${translateValue}px, 0)` : `translate3d(${translateValue}px, 0, 0)`
+-                });
+-            }, 500);
+-        }
++        // const scale = o ? (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth : 1;
++        // const initialTranslate = o ? -NESTED_DISPLACEMENT : 0;
++        // if (nestedOpenChangeTimer.current) {
++        //     window.clearTimeout(nestedOpenChangeTimer.current);
++        // }
++        // set(drawerRef.current, {
++        //     transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
++        //     transform: isVertical(direction) ? `scale(${scale}) translate3d(0, ${initialTranslate}px, 0)` : `scale(${scale}) translate3d(${initialTranslate}px, 0, 0)`
++        // });
++        // if (!o && drawerRef.current) {
++        //     nestedOpenChangeTimer.current = setTimeout(()=>{
++        //         const translateValue = getTranslate(drawerRef.current, direction);
++        //         set(drawerRef.current, {
++        //             transition: 'none',
++        //             transform: isVertical(direction) ? `translate3d(0, ${translateValue}px, 0)` : `translate3d(${translateValue}px, 0, 0)`
++        //         });
++        //     }, 500);
++        // }
+     }
+     function onNestedDrag(_event, percentageDragged) {
+-        if (percentageDragged < 0) return;
+-        const initialScale = (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth;
+-        const newScale = initialScale + percentageDragged * (1 - initialScale);
+-        const newTranslate = -NESTED_DISPLACEMENT + percentageDragged * NESTED_DISPLACEMENT;
+-        set(drawerRef.current, {
+-            transform: isVertical(direction) ? `scale(${newScale}) translate3d(0, ${newTranslate}px, 0)` : `scale(${newScale}) translate3d(${newTranslate}px, 0, 0)`,
+-            transition: 'none'
+-        });
++        // if (percentageDragged < 0) return;
++        // const initialScale = (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth;
++        // const newScale = initialScale + percentageDragged * (1 - initialScale);
++        // const newTranslate = -NESTED_DISPLACEMENT + percentageDragged * NESTED_DISPLACEMENT;
++        // set(drawerRef.current, {
++        //     transform: isVertical(direction) ? `scale(${newScale}) translate3d(0, ${newTranslate}px, 0)` : `scale(${newScale}) translate3d(${newTranslate}px, 0, 0)`,
++        //     transition: 'none'
++        // });
+     }
+     function onNestedRelease(_event, o) {
+-        const dim = isVertical(direction) ? window.innerHeight : window.innerWidth;
+-        const scale = o ? (dim - NESTED_DISPLACEMENT) / dim : 1;
+-        const translate = o ? -NESTED_DISPLACEMENT : 0;
+-        if (o) {
+-            set(drawerRef.current, {
+-                transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+-                transform: isVertical(direction) ? `scale(${scale}) translate3d(0, ${translate}px, 0)` : `scale(${scale}) translate3d(${translate}px, 0, 0)`
+-            });
+-        }
++        // const dim = isVertical(direction) ? window.innerHeight : window.innerWidth;
++        // const scale = o ? (dim - NESTED_DISPLACEMENT) / dim : 1;
++        // const translate = o ? -NESTED_DISPLACEMENT : 0;
++        // if (o) {
++        //     set(drawerRef.current, {
++        //         transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
++        //         transform: isVertical(direction) ? `scale(${scale}) translate3d(0, ${translate}px, 0)` : `scale(${scale}) translate3d(${translate}px, 0, 0)`
++        //     });
++        // }
+     }
+     React__default.useEffect(()=>{
+         if (!modal) {
+@@ -1415,7 +1415,8 @@ const Content = /*#__PURE__*/ React__default.forwardRef(function({ onPointerDown
+     const lastKnownPointerEventRef = React__default.useRef(null);
+     const wasBeyondThePointRef = React__default.useRef(false);
+     const hasSnapPoints = snapPoints && snapPoints.length > 0;
+-    useScaleBackground();
++    // 强制不使用 scale background 能力
++    // useScaleBackground();
+     const isDeltaInDirection = (delta, direction, threshold = 0)=>{
+         if (wasBeyondThePointRef.current) return true;
+         const deltaY = Math.abs(delta.y);

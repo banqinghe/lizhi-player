@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { NavLink, useLocation } from 'react-router';
 import { Drawer } from 'vaul';
@@ -7,6 +7,7 @@ import PlayDrawer from '@/components/play-drawer';
 import PlayListDrawer from '@/components/play-list-drawer';
 import { cn, getAlbumById } from '@/utils';
 import { useCurPlay, useTogglePlay } from '@/stores/cur-play';
+import { useDrawerBackStack } from '@/hooks/use-drawer-back-stack';
 
 import IconAlbum from '@/icons/album.svg?react';
 import IconAlbumSolid from '@/icons/album-solid.svg?react';
@@ -45,8 +46,22 @@ export default function Footer() {
 
     const togglePlay = useTogglePlay();
 
+    const [isPlayDrawerOpen, setPlayDrawerOpen] = useState(false);
+    const [isPlayListDrawerOpen, setPlayListDrawerOpen] = useState(false);
+
+    // 将 Footer 底部的两个 Drawer 接入返回栈
+    useDrawerBackStack(isPlayDrawerOpen, () => setPlayDrawerOpen(false));
+    useDrawerBackStack(isPlayListDrawerOpen, () => setPlayListDrawerOpen(false));
     // 判断当前路径是否匹配隐藏导航栏的路径
     const isHideNavBar = hideNavBarPaths.some(re => re.test(location.pathname));
+
+    const handlePlayDrawerOpenChange = (open: boolean) => {
+        setPlayDrawerOpen(open);
+    };
+
+    const handlePlayListDrawerOpenChange = (open: boolean) => {
+        setPlayListDrawerOpen(open);
+    };
 
     return (
         <motion.div
@@ -56,55 +71,61 @@ export default function Footer() {
         >
             {/* current play */}
             {curPlay && (
-                <Drawer.Root autoFocus>
-                    <Drawer.Trigger asChild>
-                        <div>
-                            <div className="flex items-center p-2">
-                                <img
-                                    className="size-10 mr-2 rounded"
-                                    src={album.cover}
-                                />
-                                <div>
-                                    <div className="text-sm">{curPlay.song.name}</div>
-                                    <div className="text-stone-200 text-xs">{album.name}</div>
+                <Drawer.Root
+                    autoFocus
+                    open={isPlayDrawerOpen}
+                    onOpenChange={handlePlayDrawerOpenChange}
+                >
+                    <div className="relative flex items-center">
+                        <Drawer.Trigger asChild>
+                            <div className="w-full">
+                                <div className="flex items-center p-2">
+                                    <img
+                                        className="size-10 mr-2 rounded"
+                                        src={album.cover}
+                                    />
+                                    <div>
+                                        <div className="text-sm">{curPlay.song.name}</div>
+                                        <div className="text-stone-200 text-xs">{album.name}</div>
+                                    </div>
                                 </div>
-                                <div
-                                    className="flex items-center gap-4 pr-2 ml-auto"
-                                    // 防止冒泡至上层 Drawer.Trigger
-                                    onClick={e => e.stopPropagation()}
-                                >
-                                    <motion.button
-                                        className="relative"
-                                        whileTap={{ scale: 0.97 }}
-                                        onClick={e => e.stopPropagation()}
-                                        onTap={togglePlay}
-                                    >
-                                        <SmoothToggle
-                                            inActive={<IconPlay className="size-8" />}
-                                            active={<IconPause className="size-8" />}
-                                            isActive={Boolean(curPlay.isPlaying)}
-                                        />
-                                    </motion.button>
-                                    <Drawer.Root autoFocus>
-                                        <Drawer.Trigger asChild>
-                                            <motion.button whileTap={{ scale: 0.97 }}>
-                                                <IconPlayList className="size-7" />
-                                            </motion.button>
-                                        </Drawer.Trigger>
-                                        <PlayListDrawer />
-                                    </Drawer.Root>
-                                </div>
-                            </div>
 
-                            {/* progress */}
-                            <div className="h-0.5 bg-stone-700">
-                                <div
-                                    className="bg-stone-50 h-full"
-                                    style={{ width: `${curPlay.duration ? (curPlay.currentTime / curPlay.duration) * 100 : 0}%` }}
-                                />
+                                {/* progress */}
+                                <div className="h-0.5 bg-stone-700">
+                                    <div
+                                        className="bg-stone-50 h-full"
+                                        style={{ width: `${curPlay.duration ? (curPlay.currentTime / curPlay.duration) * 100 : 0}%` }}
+                                    />
+                                </div>
                             </div>
+                        </Drawer.Trigger>
+
+                        <div className="absolute flex items-center gap-4 pr-2 right-0">
+                            <motion.button
+                                className="relative"
+                                whileTap={{ scale: 0.97 }}
+                                onTap={togglePlay}
+                            >
+                                <SmoothToggle
+                                    inActive={<IconPlay className="size-8" />}
+                                    active={<IconPause className="size-8" />}
+                                    isActive={Boolean(curPlay.isPlaying)}
+                                />
+                            </motion.button>
+                            <Drawer.Root
+                                autoFocus
+                                open={isPlayListDrawerOpen}
+                                onOpenChange={handlePlayListDrawerOpenChange}
+                            >
+                                <Drawer.Trigger asChild>
+                                    <motion.button whileTap={{ scale: 0.97 }}>
+                                        <IconPlayList className="size-6" />
+                                    </motion.button>
+                                </Drawer.Trigger>
+                                <PlayListDrawer />
+                            </Drawer.Root>
                         </div>
-                    </Drawer.Trigger>
+                    </div>
 
                     {/* 播放器面板 */}
                     <PlayDrawer />

@@ -3,6 +3,7 @@
  */
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { PlayMode, Song } from '@/types';
 import { getSongById, isSamePlayList } from '@/utils';
 import { useToast } from '@/components/toast';
@@ -38,7 +39,7 @@ export interface CurPlayStore {
     seekTo: (time: number) => void;
 }
 
-export const useCurPlayStore = create<CurPlayStore>((set, get) => ({
+export const useCurPlayStore = create<CurPlayStore>()(persist((set, get) => ({
     curPlay: null,
     setCurPlay: curPlay => set({ curPlay }),
     addToNextPlay: (songId) => {
@@ -304,6 +305,8 @@ export const useCurPlayStore = create<CurPlayStore>((set, get) => ({
         const boundedTime = duration ? Math.min(Math.max(time, 0), duration) : Math.max(time, 0);
         set({ curPlay: { ...curPlay, currentTime: boundedTime } });
     },
+}), {
+    name: 'cur-play-storage',
 }));
 
 export function useCurPlay() {

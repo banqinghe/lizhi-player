@@ -23,6 +23,7 @@ export default function PlayDrawer() {
     const playPrev = usePlayPrev();
     const playNext = usePlayNext();
     const togglePlay = useTogglePlay();
+    const handlePlayNextTap = () => playNext();
 
     const album = useMemo(() => getAlbumById(curPlay?.song.albumId ?? 0), [curPlay?.song.albumId]);
 
@@ -100,7 +101,7 @@ export default function PlayDrawer() {
                             </motion.button>
                             <motion.button
                                 whileTap={{ scale: 0.97 }}
-                                onTap={playNext}
+                                onTap={handlePlayNextTap}
                             >
                                 <IconSkipNext className="size-14" />
                             </motion.button>

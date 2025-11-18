@@ -13,16 +13,18 @@ const playModeNext: Record<PlayMode, PlayMode> = {
     'shuffle': 'repeat',
 };
 
-interface CurPlay {
+export interface CurPlay {
     song: Song;
     list: Song[];
     isPlaying: boolean;
     currentTime: number;
     duration: number;
     playMode: PlayMode;
+    buffered: number;
+    isBuffering: boolean;
 }
 
-interface CurPlayStore {
+export interface CurPlayStore {
     curPlay: CurPlay | null;
     setCurPlay: (curPlay: CurPlay | null) => void;
     addToNextPlay: (songId: number) => void;
@@ -30,13 +32,13 @@ interface CurPlayStore {
     playList: (list: Song[]) => void;
     removeFromPlayList: (songId: number) => void;
     playPrev: () => void;
-    playNext: () => void;
+    playNext: (auto?: boolean) => void;
     stopPlay: () => void;
     nextPlayMode: () => void;
     seekTo: (time: number) => void;
 }
 
-const useCurPlayStore = create<CurPlayStore>((set, get) => ({
+export const useCurPlayStore = create<CurPlayStore>((set, get) => ({
     curPlay: null,
     setCurPlay: curPlay => set({ curPlay }),
     addToNextPlay: (songId) => {
@@ -53,6 +55,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
                     duration: 0,
                     isPlaying: false,
                     playMode: curPlay?.playMode || 'repeat',
+                    buffered: 0,
+                    isBuffering: true,
                 },
             });
             return;
@@ -93,6 +97,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
                     duration: 0,
                     isPlaying: true,
                     playMode: curPlay?.playMode || 'repeat',
+                    buffered: 0,
+                    isBuffering: true,
                 },
             });
             return;
@@ -113,7 +119,18 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
         }
 
         // 更新状态：修改当前歌曲和列表
-        set({ curPlay: { ...curPlay, song, list: newList } });
+        set({
+            curPlay: {
+                ...curPlay,
+                song,
+                list: newList,
+                currentTime: 0,
+                duration: 0,
+                buffered: 0,
+                isPlaying: true,
+                isBuffering: true,
+            },
+        });
     },
     playList: (list) => {
         if (!list || list.length === 0) return;
@@ -139,6 +156,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
                 currentTime: 0,
                 duration: 0,
                 isPlaying: true,
+                buffered: 0,
+                isBuffering: true,
             },
         });
     },
@@ -170,6 +189,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
                     song: nextSong,
                     currentTime: 0,
                     duration: 0,
+                    buffered: 0,
+                    isBuffering: true,
                 },
             });
             return;
@@ -214,6 +235,8 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
                 currentTime: 0,
                 duration: 0,
                 isPlaying: true,
+                buffered: 0,
+                isBuffering: true,
             },
         });
     },
@@ -250,13 +273,16 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
         }
 
         const nextSong = curPlay.list[nextIndex];
+        const keepMeta = auto && curPlay.playMode === 'repeat-one';
         set({
             curPlay: {
                 ...curPlay,
                 song: nextSong,
                 currentTime: 0,
-                duration: 0,
+                duration: keepMeta ? curPlay.duration : 0,
                 isPlaying: true,
+                buffered: keepMeta ? curPlay.buffered : 0,
+                isBuffering: keepMeta ? curPlay.isBuffering : true,
             },
         });
     },
@@ -274,7 +300,9 @@ const useCurPlayStore = create<CurPlayStore>((set, get) => ({
     seekTo: (time) => {
         const curPlay = get().curPlay;
         if (!curPlay) return;
-        set({ curPlay: { ...curPlay, currentTime: time } });
+        const duration = curPlay.duration || 0;
+        const boundedTime = duration ? Math.min(Math.max(time, 0), duration) : Math.max(time, 0);
+        set({ curPlay: { ...curPlay, currentTime: boundedTime } });
     },
 }));
 

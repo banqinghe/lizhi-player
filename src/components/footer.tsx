@@ -46,6 +46,10 @@ export default function Footer() {
 
     const togglePlay = useTogglePlay();
 
+    const progressPercent = curPlay?.duration ? (curPlay.currentTime / curPlay.duration) * 100 : 0;
+    const bufferedPercent = curPlay?.duration ? (curPlay.buffered / curPlay.duration) * 100 : 0;
+    const buffering = Boolean(curPlay?.isBuffering && curPlay?.isPlaying);
+
     const [isPlayDrawerOpen, setPlayDrawerOpen] = useState(false);
     const [isPlayListDrawerOpen, setPlayListDrawerOpen] = useState(false);
 
@@ -91,10 +95,14 @@ export default function Footer() {
                                 </div>
 
                                 {/* progress */}
-                                <div className="h-0.5 bg-stone-700">
+                                <div className={cn('h-0.5 bg-stone-700 relative overflow-hidden', { 'animate-pulse': buffering })}>
                                     <div
-                                        className="bg-stone-50 h-full"
-                                        style={{ width: `${curPlay.duration ? (curPlay.currentTime / curPlay.duration) * 100 : 0}%` }}
+                                        className="absolute inset-y-0 left-0 bg-stone-500/70"
+                                        style={{ width: `${Math.min(bufferedPercent, 100)}%` }}
+                                    />
+                                    <div
+                                        className="absolute inset-y-0 left-0 bg-stone-50"
+                                        style={{ width: `${Math.min(progressPercent, 100)}%` }}
                                     />
                                 </div>
                             </div>

@@ -48,5 +48,6 @@
         "patchedDependencies": {
             "vaul": "patches/vaul.patch"
         }
-    }
+    },
+    "packageManager": "pnpm@10.5.2"
 }

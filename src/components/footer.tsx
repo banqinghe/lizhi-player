@@ -14,6 +14,8 @@ import IconAlbumSolid from '@/icons/album-solid.svg?react';
 import IconLibrary from '@/icons/library.svg?react';
 import IconLibrarySolid from '@/icons/library-solid.svg?react';
 import IconPlayList from '@/icons/playlist.svg?react';
+import IconData from '@/icons/data.svg?react';
+import IconDataSolid from '@/icons/data-solid.svg?react';
 import IconPlay from '@/icons/play.svg?react';
 import IconPause from '@/icons/pause.svg?react';
 
@@ -29,6 +31,12 @@ const navList = [
         iconActive: <IconLibrarySolid className="size-7 mb-1" />,
         label: '歌曲库',
         to: '/library',
+    },
+    {
+        iconInActive: <IconData className="size-7 mb-1" />,
+        iconActive: <IconDataSolid className="size-7 mb-1" />,
+        label: '存储',
+        to: '/storage',
     },
 ];
 
@@ -141,7 +149,7 @@ export default function Footer() {
             )}
 
             {/* nav bar */}
-            <div className="flex justify-between h-[68px] px-12">
+            <div className="flex justify-between h-[68px]">
                 {navList.map(nav => (
                     <NavLink
                         key={nav.to}
